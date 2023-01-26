@@ -1,8 +1,34 @@
+include       mime.types;
+default_type  application/octet-stream;
+
+upstream backend {
+  server api.github.com:443;
+}
+
+proxy_cache_key $scheme$proxy_host$request_uri;
+proxy_cache_path /tmp/cache levels=1:2 keys_zone=my_cache:10m;
+
 server {
   listen $PORT default_server;
 
+  add_header X-Cache-Status $upstream_cache_status;
+
   location / {
-    root   /usr/share/nginx/html;
-    index  index.html index.htm;
+    proxy_redirect off;
+    proxy_set_header        Host api.github.com;
+    proxy_set_header        X-Forwarded-Host $host;
+    proxy_set_header        X-Forwarded-Server $host;
+    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header        X-Real-IP  $remote_addr;
+    proxy_buffering on;
+
+    proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
+    proxy_ignore_headers Set-Cookie;
+
+    proxy_cache my_cache;
+    proxy_cache_valid 200 302 10m;
+    proxy_cache_valid 404 1m;
+    proxy_cache_methods GET POST;
+    proxy_pass https://backend;
   }
 }
