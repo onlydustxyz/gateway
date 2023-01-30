@@ -25,4 +25,17 @@ server {
     proxy_ignore_headers Expires;
     proxy_ignore_headers Cache-Control;
   }
+
+  location /login/callback {
+    set $login_path login;
+    if ($cookie_login_origin) {
+        return 301 $cookie_login_origin$login_path$is_args$args;
+    }
+  }
+
+  location /login {
+    add_header Set-Cookie "login_origin=$http_referer;Path=/;HttpOnly";
+
+    return 301 https://review.auth.onlydust.xyz/signin/provider/github;
+  }
 }
