@@ -27,15 +27,18 @@ server {
   }
 
   location /login/callback {
-    set $login_path login;
+    set $login_path /login;
     if ($cookie_login_origin) {
         return 301 $cookie_login_origin$login_path$is_args$args;
     }
+    return 403;
   }
 
   location /login {
-    add_header Set-Cookie "login_origin=$http_referer;Path=/;HttpOnly";
-
-    return 301 https://review.auth.onlydust.xyz/signin/provider/github;
+    if ($arg_redirect_url) {
+      add_header Set-Cookie "login_origin=$arg_redirect_url;Path=/;HttpOnly";
+      return 301 https://review.auth.onlydust.xyz/signin/provider/github;
+    }
+    return 403;
   }
 }
