@@ -14,7 +14,7 @@ server {
     proxy_set_header Authorization $http_authorization;
 
     proxy_cache github_cache;
-    proxy_cache_valid 200 1m;
+    proxy_cache_valid 200 10m;
     proxy_cache_valid 404 5s;
     proxy_cache_bypass $http_pragma;
     proxy_cache_use_stale updating;
