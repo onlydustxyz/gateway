@@ -3,6 +3,11 @@ default_type  application/octet-stream;
 
 proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=github_cache:10m inactive=1y;
 
+js_path "/etc/nginx/njs/";
+js_import decode_uri.js;
+js_set $dec_ddforward_uri decode_uri.decode_ddforward_uri;
+js_set $dec_ddforward_args decode_uri.decode_ddforward_args;
+
 server {
   listen $PORT default_server;
 
@@ -41,5 +46,13 @@ server {
       return 301 https://review.auth.onlydust.xyz/signin/provider/github;
     }
     return 403;
+  }
+
+  location /datadog {
+    resolver 8.8.8.8  [::1];
+
+    proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass          https://browser-intake-datadoghq.eu$dec_ddforward_uri?$dec_ddforward_args;
+    proxy_set_header    Host $host;
   }
 }
