@@ -21,7 +21,7 @@ upstream github-api {
   server api.github.com:443;
 }
 upstream od-api {
-  server staging.hasura.onlydust.xyz:443;
+  server $OD_API_HOST:443;
 }
 
 server {
@@ -30,9 +30,9 @@ server {
   # Cache responses of requests where X-Cache-Api header is present
   location /api/ {
     proxy_pass https://od-api/;
-    proxy_ssl_name staging.hasura.onlydust.xyz;
+    proxy_ssl_name $OD_API_HOST;
     proxy_ssl_server_name on;
-    proxy_set_header Host staging.hasura.onlydust.xyz;
+    proxy_set_header Host $OD_API_HOST;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
