@@ -16,6 +16,14 @@ map $http_x_cache_api $no_api_cache {
   "~." 0;
 }
 
+# Replace all occurrences of "api.github.com" by "gateway.onlydust.xyz" in Link header
+map $upstream_http_link $new_link {
+  "~^(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)$"   $1$OD_GATEWAY_BASE_URL/github$2$OD_GATEWAY_BASE_URL/github$3$OD_GATEWAY_BASE_URL/github$4$OD_GATEWAY_BASE_URL/github$5;
+  "~^(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)$"                                 $1$OD_GATEWAY_BASE_URL/github$2$OD_GATEWAY_BASE_URL/github$3$OD_GATEWAY_BASE_URL/github$4;
+  "~^(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)$"                                                               $1$OD_GATEWAY_BASE_URL/github$2$OD_GATEWAY_BASE_URL/github$3;
+  "~^(.*)https:\/\/api\.github\.com(.*)$"                                                                                             $1$OD_GATEWAY_BASE_URL/github$2;
+}
+
 # Upstreams
 upstream github-api {
   server api.github.com:443;
@@ -73,6 +81,9 @@ server {
     proxy_ignore_headers Cache-Control;
 
     add_header X-Gateway-Cache-Status $upstream_cache_status;
+
+    proxy_hide_header Link;
+    add_header Link $new_link;
   }
 
   location /login/callback {
