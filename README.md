@@ -1,4 +1,4 @@
-# Reverse proxy
+# Gateway
 
 This repository holds the configuration needed to host an Nginx reverse proxy inside a Docker container.
 
@@ -16,23 +16,22 @@ The reason we want to have a Docker container for this is that we want to be abl
 You will need to create a Heroku account and install the Heroku CLI, eg.
 `brew install heroku`.
 
-As a prerequisitory, you must set the `OD_API_HOST` environement variable according to the
+As a prerequisitory, you must set the `OD_API_HOST` and `OD_GATEWAY_BASE_URL` environement variables according to the
 environement (develop, staging or production).
 
 Eg.
 
 ```sh
-heroku config:set OD_API_HOST=develop.hasura.onlydust.xyz -a od-reverse-proxy-develop
+heroku config:set OD_API_HOST=develop.hasura.onlydust.xyz -a od-gateway-develop
+heroku config:set OD_GATEWAY_BASE_URL=https://develop.gateway.onlydust.xyz -a od-gateway-develop
 ```
 
 Then, deploy with the following commands (the app name depends on the environement you want to deploy to):
 
 ```sh
-git clone git@github.com:onlydustxyz/reverse-proxy.git
-cd reverse-proxy
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
-heroku container:push web -a od-reverse-proxy-develop
-heroku container:release web -a od-reverse-proxy-develop
+heroku container:push web -a od-gateway-develop
+heroku container:release web -a od-gateway-develop
 ```
 
 > **Note**: Since you are very likely to run this script on a Mac M1, you will need to set the `DOCKER_DEFAULT_PLATFORM` environment variable to `linux/amd64` to force the build to happen on an amd64 machine, in order for Heroku to be able to run it.
@@ -42,8 +41,8 @@ heroku container:release web -a od-reverse-proxy-develop
 To test the configuration locally, you can run:
 
 ```sh
-docker build -t reverse-proxy .
-docker run -p 3000:3000 --env PORT=3000 --env OD_API_HOST=develop.hasura.onlydust.xyz --rm -it reverse-proxy
+docker build -t gateway .
+docker run -p 3000:3000 --env PORT=3000 --env OD_API_HOST=develop.hasura.onlydust.xyz --env OD_GATEWAY_BASE_URL=http://localhost:3000 --rm -it gateway
 ```
 
 Then, you can access the proxy at http://localhost:3000.
