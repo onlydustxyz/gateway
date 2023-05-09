@@ -34,6 +34,7 @@ upstream od-api {
 
 log_format github_log_format escape=json
 '{'
+  '"remote_addr": "$remote_addr",'
   '"time_local": "$time_local",'
   '"request": "$request",'
   '"status": $status,'
