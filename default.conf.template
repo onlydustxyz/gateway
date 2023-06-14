@@ -20,11 +20,24 @@ upstream od-api {
   server $OD_API_HOST:443;
 }
 
+log_format gateway_log_format escape=json
+'{'
+  '"remote_addr": "$remote_addr",'
+  '"time_local": "$time_local",'
+  '"request": "$request",'
+  '"status": $status,'
+  '"user_agent": "$http_user_agent",'
+  '"no_api_cache": "$no_api_cache",'
+  '"X-Gateway-Cache-Status": "$upstream_cache_status"'
+'}';
+
 server {
   listen $PORT default_server;
 
   # Cache responses of requests where X-Cache-Api header is present
   location /api/ {
+    access_log /dev/stdout gateway_log_format;
+
     client_body_buffer_size 64k;
     proxy_buffer_size 128k;
     proxy_buffers 8 128k;
