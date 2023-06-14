@@ -7,7 +7,6 @@ js_set $dec_ddforward_uri decode_uri.decode_ddforward_uri;
 js_set $dec_ddforward_args decode_uri.decode_ddforward_args;
 
 # Caches
-proxy_cache_path /var/cache/github-api levels=1:2 keys_zone=github_api_cache:10m inactive=1y;
 proxy_cache_path /var/cache/od-api levels=1:2 keys_zone=od_api_cache:10m inactive=1y;
 
 # Map the presence of X-Cache-Api header to a $no_api_cache variable
@@ -16,37 +15,10 @@ map $http_x_cache_api $no_api_cache {
   "~." 0;
 }
 
-# Replace all occurrences of "api.github.com" by "gateway.onlydust.xyz" in Link header
-map $upstream_http_link $new_link {
-  "~^(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)$"   $1$OD_GATEWAY_BASE_URL/github$2$OD_GATEWAY_BASE_URL/github$3$OD_GATEWAY_BASE_URL/github$4$OD_GATEWAY_BASE_URL/github$5;
-  "~^(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)$"                                 $1$OD_GATEWAY_BASE_URL/github$2$OD_GATEWAY_BASE_URL/github$3$OD_GATEWAY_BASE_URL/github$4;
-  "~^(.*)https:\/\/api\.github\.com(.*)https:\/\/api\.github\.com(.*)$"                                                               $1$OD_GATEWAY_BASE_URL/github$2$OD_GATEWAY_BASE_URL/github$3;
-  "~^(.*)https:\/\/api\.github\.com(.*)$"                                                                                             $1$OD_GATEWAY_BASE_URL/github$2;
-}
-
 # Upstreams
-upstream github-api {
-  server api.github.com:443;
-}
 upstream od-api {
   server $OD_API_HOST:443;
 }
-
-log_format github_log_format escape=json
-'{'
-  '"remote_addr": "$remote_addr",'
-  '"time_local": "$time_local",'
-  '"request": "$request",'
-  '"status": $status,'
-  '"user_agent": "$http_user_agent",'
-  '"X-Ratelimit-Limit": $upstream_http_x_ratelimit_limit,'
-  '"X-Ratelimit-Remaining": $upstream_http_x_ratelimit_remaining,'
-  '"X-Ratelimit-Reset": $upstream_http_x_ratelimit_reset,'
-  '"X-Ratelimit-Used": $upstream_http_x_ratelimit_used,'
-  '"X-Ratelimit-Resource": "$upstream_http_x_ratelimit_resource",'
-  '"Etag": "$upstream_http_etag",'
-  '"X-Gateway-Cache-Status": "$upstream_cache_status"'
-'}';
 
 server {
   listen $PORT default_server;
@@ -80,39 +52,6 @@ server {
     proxy_no_cache $no_api_cache;
 
     add_header X-Gateway-Cache-Status $upstream_cache_status;
-  }
-
-  location /github/ {
-    proxy_pass https://github-api/;
-    proxy_set_header Host api.github.com;
-    proxy_set_header Authorization $http_authorization;
-
-    access_log /dev/stdout github_log_format;
-
-    proxy_cache github_api_cache;
-    proxy_cache_valid 200 1m;
-    proxy_cache_valid 404 5s;
-    proxy_cache_bypass $http_pragma;
-    proxy_cache_use_stale updating;
-    proxy_cache_background_update on;
-    proxy_cache_revalidate on;
-    proxy_cache_lock on;
-    proxy_cache_lock_age 5s;
-    proxy_cache_lock_timeout 10s;
-    proxy_ignore_headers X-Accel-Expires;
-    proxy_ignore_headers Expires;
-    proxy_ignore_headers Cache-Control;
-
-    add_header X-Gateway-Cache-Status $upstream_cache_status;
-
-    proxy_hide_header Link;
-    add_header Link $new_link;
-
-    location /github/rate_limit {
-      proxy_pass https://github-api/rate_limit;
-      proxy_cache_bypass 1;
-      proxy_no_cache 1;
-    }
   }
 
   location /login/callback {
