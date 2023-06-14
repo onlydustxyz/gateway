@@ -1,8 +1,0 @@
-{
-  "name": "od-reverse-proxy",
-  "description": "A barebones nginx installation using Docker",
-  "repository": "https://github.com/onlydustxyz/reverse-proxy",
-  "logo": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Nginx_logo.svg",
-  "keywords": ["nginx", "docker", "proxy"],
-  "stack": "container"
-}
