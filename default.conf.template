@@ -28,7 +28,8 @@ log_format gateway_log_format escape=json
   '"status": $status,'
   '"user_agent": "$http_user_agent",'
   '"no_api_cache": "$no_api_cache",'
-  '"X-Gateway-Cache-Status": "$upstream_cache_status"'
+  '"X-Gateway-Cache-Status": "$upstream_cache_status",'
+  '"X-Forwarded-For": "$http_x_forwarded_for"'
 '}';
 
 server {
