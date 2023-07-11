@@ -71,7 +71,7 @@ server {
   location /login/callback {
     set $login_path /login;
     if ($cookie_login_origin) {
-        return 301 $cookie_login_origin$login_path$is_args$args;
+        return 302 $cookie_login_origin$login_path$is_args$args;
     }
     return 403;
   }
@@ -79,7 +79,7 @@ server {
   location /login {
     if ($arg_redirect_url) {
       add_header Set-Cookie "login_origin=$arg_redirect_url;Path=/;HttpOnly";
-      return 301 https://develop.auth.onlydust.xyz/signin/provider/github;
+      return 302 https://develop.auth.onlydust.xyz/signin/provider/github;
     }
     return 403;
   }
