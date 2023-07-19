@@ -56,12 +56,13 @@ server {
     proxy_cache od_api_cache;
     proxy_cache_methods GET POST;
     proxy_cache_key "$scheme$proxy_host$uri$is_args$args$request_body$content_length";
-    proxy_cache_valid 200 10s;
-    proxy_cache_valid 404 5s;
+    proxy_cache_valid 200 30s;
+    proxy_cache_valid 404 10s;
     proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
     proxy_cache_lock on;
     proxy_cache_lock_age 5s;
-    proxy_cache_lock_timeout 10s;
+    proxy_cache_lock_timeout 20s;
+
     proxy_cache_bypass $no_api_cache;
     proxy_no_cache $no_api_cache;
 
