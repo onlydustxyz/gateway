@@ -21,7 +21,7 @@ environement (develop, staging or production).
 Eg.
 
 ```sh
-heroku config:set OD_API_HOST=develop.hasura.onlydust.xyz -a od-gateway-develop
+heroku config:set OD_API_HOST=develop-hasura.onlydust.xyz -a od-gateway-develop
 ```
 
 Then, deploy with the following commands (the app name depends on the environement you want to deploy to):
@@ -40,7 +40,7 @@ To test the configuration locally, you can run:
 
 ```sh
 docker build -t gateway .
-docker run -p 3001:3001 --env PORT=3001 --env OD_API_HOST=develop.hasura.onlydust.xyz --rm -it gateway
+docker run -p 3001:3001 --env PORT=3001 --env OD_API_HOST=develop-hasura.onlydust.xyz --rm -it gateway
 ```
 
 Then, you can access the proxy at http://localhost:3001.

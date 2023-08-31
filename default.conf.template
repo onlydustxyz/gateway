@@ -80,7 +80,7 @@ server {
   location /login {
     if ($arg_redirect_url) {
       add_header Set-Cookie "login_origin=$arg_redirect_url;Path=/;HttpOnly";
-      return 302 https://develop.auth.onlydust.xyz/signin/provider/github;
+      return 302 https://develop-auth.onlydust.xyz/signin/provider/github;
     }
     return 403;
   }
