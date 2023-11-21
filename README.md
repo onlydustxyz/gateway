@@ -4,7 +4,6 @@ This repository holds the configuration needed to host an Nginx reverse proxy in
 
 We use it:
 
-- To act as a sticky proxy for our review apps, acting as a single Oauth app in the eyes of the Github Oauth provider
 - To act as a reverse proxy for Datadog (and bypass some ad-blockers)
 - To act as a cache for our GraphQL API (only for requests where the caller explicitely set the X-Cache-Api header)
 
