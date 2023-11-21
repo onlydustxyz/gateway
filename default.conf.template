@@ -69,6 +69,22 @@ server {
     add_header X-Gateway-Cache-Status $upstream_cache_status;
   }
 
+  location /local/signin/provider/github/callback {
+    set $login_path /login;
+    if ($cookie_login_origin) {
+        return 302 $cookie_login_origin$login_path$is_args$args;
+    }
+    return 403;
+  }
+
+  location /local/signin/provider/github {
+    if ($arg_redirect_url) {
+      add_header Set-Cookie "login_origin=$arg_redirect_url;Path=/;HttpOnly";
+      return 302 https://develop-auth.onlydust.xyz/signin/provider/github;
+    }
+    return 403;
+  }
+
   location /datadog {
     resolver 8.8.8.8  [::1];
 
